@@ -18,7 +18,11 @@ public class GenerateMaze : MonoBehaviour
         wall.Clear();
         for(int i = 0; i < maxCount; i++)
         {
-            wall.Add(Instantiate(WallPrefab, new Vector3(Random.Range(0, 10*arena.transform.localScale.x-1.5f)+0.5f, 0, Random.Range(0,10*arena.transform.localScale.z-1.5f)+0.5f), Quaternion.identity));
+            wall.Add(Instantiate(WallPrefab, new Vector3(Random.Range(0, 10*arena.transform.localScale.x-1.5f)+0.5f, 1, Random.Range(0,10*arena.transform.localScale.z-1.5f)+0.5f), Quaternion.identity));
         }
+    }
+    public void Start()
+    {
+        GenerateNewMaze();
     }
 }

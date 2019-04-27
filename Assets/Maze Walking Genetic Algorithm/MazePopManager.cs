@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MazePopManager : MonoBehaviour
@@ -31,7 +32,7 @@ public class MazePopManager : MonoBehaviour
         for(int i = 0; i < populationSize; i++)
         {
             GameObject b = Instantiate(botPrefab, startingPos.transform.position, this.transform.rotation);
-            b.GetComponent<Brain>().Init();
+            b.GetComponent<MazeBrain>().Init();
             population.Add(b);
         }
     }
@@ -39,7 +40,44 @@ public class MazePopManager : MonoBehaviour
     GameObject Breed(GameObject p1, GameObject p2)
     {
         GameObject offspring = Instantiate(botPrefab, startingPos.transform.position, this.transform.rotation);
-        Brain b = offspring.GetComponent<Brain>();
-        if
+        MazeBrain b = offspring.GetComponent<MazeBrain>();
+        if(Random.Range(0, 100) == 1)
+        {
+            b.Init();
+            b.dna.Mutate();
+        }
+        else
+        {
+            b.Init();
+            b.dna.Combine(p1.GetComponent<MazeBrain>().dna, p2.GetComponent<MazeBrain>().dna);
+        }
+        return offspring;
+    }
+
+    void BreedNewPopulation()
+    {
+        List<GameObject> sortedList = population.OrderBy(o => o.GetComponent<MazeBrain>().distanceTravelled).ToList();
+        population.Clear();
+
+        for (int i = (int)(sortedList.Count / 2.0f) - 1; i < sortedList.Count - 1; i++)
+        {
+            population.Add(Breed(sortedList[i], sortedList[i + 1]));
+            population.Add(Breed(sortedList[i + 1], sortedList[i]));
+        }
+
+        for (int i = 0; i < sortedList.Count; i++)
+            Destroy(sortedList[i]);
+
+        generation++;
+    }
+
+    void Update()
+    {
+        elapsed += Time.deltaTime;
+        if(elapsed >= trialTime)
+        {
+            BreedNewPopulation();
+            elapsed = 0;
+        }
     }
 }
